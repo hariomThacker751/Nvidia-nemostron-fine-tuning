@@ -1,0 +1,28 @@
+# Core Machine Learning & Deep Learning
+# Standard Kaggle/Colab pre-installs assumed for Torch to prevent driver/mismatch issues.
+# Do NOT upgrade torch/torchvision directly unless required.
+torch
+torchvision
+
+# HuggingFace & Fine-Tuning Pipeline
+transformers>=4.40.0
+accelerate>=0.28.0
+peft>=0.10.0
+trl>=0.8.6
+bitsandbytes>=0.43.0
+datasets>=2.18.0
+
+# Mathematical & Data Wrangling
+numpy>=1.24.0
+pandas>=2.0.0
+sympy>=1.12
+tqdm>=4.65.0
+
+# API Client Services for Chain-of-Thought (Optional)
+anthropic>=0.18.0
+openai>=1.12.0
+
+# Automated Testing
+pytest>=8.0.0
+pytest-cov>=4.1.0
+ruff>=0.2.0

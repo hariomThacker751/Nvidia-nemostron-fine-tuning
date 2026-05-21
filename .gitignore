@@ -1,0 +1,40 @@
+# Python environment
+.venv/
+venv/
+ENV/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pytest and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Large Datasets & Processed Files
+data/raw/*.csv
+data/processed/*.jsonl
+data/processed/*.csv
+phase1_output/
+cot_cache.jsonl
+
+# Large Deep Learning Model Weights and Checkpoints
+models/
+lora_adapter/
+checkpoints/
+*.bin
+*.pt
+*.pth
+*.safetensors
+submission.zip
+submission.csv
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# OS specific files
+.DS_Store
+Thumbs.db

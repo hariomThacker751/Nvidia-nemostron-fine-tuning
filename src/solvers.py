@@ -163,7 +163,7 @@ def _solve_cryptogram(pairs, target_words, vocab):
 
     start_time = time.time()
     def backtrack(word_index, current_map):
-        if time.time() - start_time > 1.0: return None
+        if time.time() - start_time > 0.05: return None
         if word_index == len(target_words):
             return current_map
         enc_word = target_words[word_index]
@@ -297,13 +297,12 @@ def solve_symbolic_substitution(prompt):
         return None, 0.0, "too many unique characters"
         
     ops_choices = ['+', '-', '*', '//']
-    
+    global_start = time.time()
     for ops_p in itertools.product(ops_choices, repeat=len(op_chars)):
         o_map = dict(zip(op_chars, ops_p))
         
-        start_time = time.time()
         def backtrack(char_idx, d_map, used):
-            if time.time() - start_time > 1.0: return False
+            if time.time() - global_start > 0.05: return False
             for op1, op, op2, res in equations:
                 if all(c in d_map for c in op1+op2+res):
                     if len(op1) > 1 and d_map[op1[0]] == '0': return False
@@ -406,7 +405,19 @@ def bit_feature_bank():
     return tiers
 
 
-BIT_TIERS = bit_feature_bank()
+def precompute_bit_tiers():
+    raw_tiers = bit_feature_bank()
+    precomputed = []
+    for tier in raw_tiers:
+        tier_data = []
+        for name, fn in tier:
+            # Precompute output for all 256 possible 8-bit inputs
+            outputs = [fn(format(val, '08b')) for val in range(256)]
+            tier_data.append((name, outputs))
+        precomputed.append(tier_data)
+    return precomputed
+
+PRECOMPUTED_BIT_TIERS = precompute_bit_tiers()
 
 
 def solve_bitwise(prompt):
@@ -446,21 +457,24 @@ def solve_bitwise(prompt):
 
     # 2. Tiered Logic Gate Search
     out = []
+    int_x_list = [int(x, 2) for x, _ in pairs]
+    target_idx = int(target_bits, 2)
+    
     for pos in range(8):
         expected = tuple(int(y[pos]) for _, y in pairs)
-        found_fn = None
-        for tier in BIT_TIERS:
-            for fn_name, fn in tier:
-                if tuple(fn(x) for x, _ in pairs) == expected:
-                    found_fn = fn
+        found_outputs = None
+        for tier in PRECOMPUTED_BIT_TIERS:
+            for fn_name, outputs in tier:
+                if tuple(outputs[idx] for idx in int_x_list) == expected:
+                    found_outputs = outputs
                     break
-            if found_fn:
+            if found_outputs:
                 break
                 
-        if not found_fn:
+        if not found_outputs:
             return None, 0.0, f"no matching rule for bit position {pos}"
             
-        out.append(str(found_fn(target_bits)))
+        out.append(str(found_outputs[target_idx]))
 
     return "".join(out), 0.95, "exact tiered boolean logic"
 

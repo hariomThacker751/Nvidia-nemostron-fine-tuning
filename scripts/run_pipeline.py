@@ -1,6 +1,22 @@
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
+import subprocess
+original_run = subprocess.run
+
+def patched_run(*args, **kwargs):
+    cmd = args[0] if args else kwargs.get("args", "")
+    if "habana-torch-plugin" in str(cmd):
+        return subprocess.CompletedProcess(
+            args=cmd,
+            returncode=1,
+            stdout="",
+            stderr=""
+        )
+    return original_run(*args, **kwargs)
+
+subprocess.run = patched_run
+
 import sys
 import argparse
 from pathlib import Path
